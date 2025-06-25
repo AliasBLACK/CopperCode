@@ -1,0 +1,4 @@
+/*.js
+/console.log
+!/*.config.js
+*.LICENSE.txt

@@ -1,0 +1,10 @@
+{
+	"configurations": [
+		{
+			"name": "Transpile with Typescript & package with Webpack",
+			"type": "f5anything",
+			"request": "launch",
+			"command": "WScript \"generateScript.vbs\" && npx webpack --config webpack.config.js && coppercode.exe -debug -script:coppercode.js"
+		}
+	]
+}
