@@ -1,0 +1,27 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Compile scripts",
+			"type": "shell",
+			"command": "cd src && npm install && npx webpack --config webpack.config.js && cd ..",
+		},
+		{
+			"label": "Copy CopperCube Extensions",
+			"type": "shell",
+			"command": "PowerShell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"Copy-Item -Path '${workspaceFolder}\\ext\\*' -Destination (Join-Path ([System.Environment]::GetFolderPath('MyDocuments')) 'CopperCube\\extensions') -Recurse -Force"
+			]
+		},
+		{
+			"label": "Compile game",
+			"dependsOn": [
+				"Compile scripts",
+				"Copy CopperCube Extensions"
+			]
+		}
+	]
+}
