@@ -17,25 +17,72 @@ game starts.
 
 ## Quickstart
 
-1. Install [Node.js](https://nodejs.org/en) and [Visual Studio Code](https://code.visualstudio.com/).
+1. Install [Node.js](https://nodejs.org/en), [Visual Studio Code](https://code.visualstudio.com/) and
+   [CopperCube 6](https://store.steampowered.com/app/857350/).
 2. Install [F5 Anything](https://marketplace.visualstudio.com/items?itemName=discretegames.f5anything) in VS Code.
 3. `cd src && npm install`
-4. Open the folder in VS Code and press <kbd>F5</kbd>.
+4. In VS Code, **Terminal → Run Task → Compile game**. This writes `coppercode.js` and installs the engine's CopperCube
+   extension.
+5. Open `coppercode.ccb` in CopperCube and **File → Publish → Publish as Windows Application**. This writes
+   `coppercode.exe` beside it.
+6. From now on, press <kbd>F5</kbd> in VS Code.
+
+Steps 4 and 5 are only needed once each to get going. After that <kbd>F5</kbd> does everything you normally need — see
+below for why.
+
+## Building
+
+There are two artifacts, built by two different tools, and you rarely need both at once. Neither is in version control;
+both are regenerated.
+
+### The script, in VS Code
+
+`coppercode.js` at the project root, compiled from everything under `src/`. Press <kbd>F5</kbd>: F5 Anything runs the
+*Compile game* task and then launches the exe. Without launching, use **Terminal → Run Task → Compile game**, or:
+
+```
+cd src && npx webpack --config webpack.config.js
+```
+
+*Compile game* does two things. It runs webpack, and it copies `ext/` into `Documents\CopperCube\extensions`, because
+`behavior_entity` — the extension that drives the frame — has to be installed there for CopperCube to resolve it.
+CopperCube re-reads that folder every time it builds, so the copy is cheap and worth doing every time.
+
+The launch command carries `-debug`, which opens CopperCube's console. `print()` and the engine's `console.log()` both
+write there; `console.log()` also appends to a `console.log` file beside the exe.
+
+### The exe, in CopperCube
+
+**Only needed when the scene changes**, not when the script changes.
+
+1. Open `coppercode.ccb` in CopperCube.
+2. **File → Publish → Publish as Windows Application**, or **Tools → Test as Windows Application** to publish and run
+   in one step.
+3. `coppercode.exe` is written next to the `.ccb`.
+
+At publish time CopperCube embeds whatever `coppercode.js` is sitting beside the `.ccb` into the exe as its main script.
+But `.vscode/launch.json` launches with `-script:coppercode.js`, which overrides the embedded copy with the file on
+disk — so <kbd>F5</kbd> only has to rebuild the script, and reuses the exe you already have. Republish when you have
+changed the scene, or when you are ready to ship a standalone exe with the script baked in.
+
+`Tools → Compile Main Script` in CopperCube will syntax-check the compiled script without publishing.
 
 ## Renaming the project
 
 CopperCube runs the script named after the project, so the `.ccb`, the `.exe` and the compiled `.js` all have to share
-one name. Four places have to agree, plus CopperCube itself:
+one name. Three places have to agree:
 
 | | |
 |---|---|
 | `coppercode.ccb` | rename the file |
-| `coppercode.exe` | rename, or just republish from CopperCube once and it is written for you |
 | `src/webpack.config.js` | `output.filename` |
 | `.vscode/launch.json` | `command` — both the `.exe` and the `-script:` argument |
 
-Then in CopperCube, open the renamed `.ccb` and publish as a Windows `.exe` beside it. The `-script:` argument makes
-the name explicit while debugging, so a mismatch will not show up until you publish.
+Then rebuild both artifacts: run *Compile game*, then publish the renamed `.ccb` from CopperCube. You do not rename the
+exe — it is not in version control, and publishing writes it under the new name for you.
+
+Note that `-script:` names the script explicitly, so while debugging a mismatch between the `.ccb` and the `.js` will
+not show up at all. It surfaces only once you publish and rely on the embedded script.
 
 ## How a project is wired
 

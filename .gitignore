@@ -1,6 +1,16 @@
+# Dependencies.
 /src/node_modules
+
+# The compiled script, written to the project root by webpack because CopperCube
+# loads the script named after the project. Rebuilt from src/ — see the README.
 /*.js
-/console.log
 !/*.config.js
 *.LICENSE.txt
+
+# Published from the .ccb by CopperCube — see the README.
+/*.exe
+
+# Written by console.log.
+/console.log
+
 src/gen/*
