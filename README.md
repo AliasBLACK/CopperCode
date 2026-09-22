@@ -1,19 +1,23 @@
 # CopperCode
 
 CopperCode is a code-first project template for [CopperCube 6](https://store.steampowered.com/app/857350/). Fork it,
-rename it, and you have a running game with an engine already under it.
+rename it, and it is a CopperCube project with an engine already under it — the scene scaffold, the build, and the
+entity framework are all in place.
 
 * Write the game in JavaScript or TypeScript in [Visual Studio Code](https://code.visualstudio.com/) — searchable,
   autocompleted, and tracked in version control, instead of buried in a `.ccb`.
 * [Webpack](https://webpack.js.org/) and [TypeScript](https://www.typescriptlang.org/) compile the whole project down to
   the single ES3 file CopperCube's interpreter can read.
 * [npm](https://www.npmjs.com/) brings in [Crash](https://www.npmjs.com/package/crash-colliders) for 2D collision,
-  [TypeFlex](https://www.npmjs.com/package/typeflex) for UI layout, and the shims that make ES2020-era JavaScript run in
-  CopperCube at all.
+  [TypeFlex](https://www.npmjs.com/package/typeflex) for UI layout, and the shims that give CopperCube's interpreter
+  its ES6 API surface.
 
 `src/engine/` holds the engine: an entity system with pooling, a Yoga-based UI layout with 9-patch panels and buttons,
 tweening, a frame scheduler, mouse picking and hovering, seeded random, and localization. `src/main.js` is where your
 game starts.
+
+The repo contains no `.exe` and no compiled `.js` — both are produced, and neither exists until you produce it. The
+script is compiled by webpack in VS Code; the executable is published by CopperCube from the `.ccb`. See *Building*.
 
 ## Quickstart
 
@@ -32,8 +36,13 @@ below for why.
 
 ## Building
 
-There are two artifacts, built by two different tools, and you rarely need both at once. Neither is in version control;
-both are regenerated.
+The repo ships neither artifact. There are two, built by two different tools, and you rarely need both at once —
+neither is in version control, and both are regenerated:
+
+| artifact | built by | rebuild when |
+|---|---|---|
+| `coppercode.js` | webpack, from VS Code | every time, on F5 |
+| `coppercode.exe` | CopperCube, from the `.ccb` | only when the scene changes, or to ship |
 
 ### The script, in VS Code
 
@@ -206,5 +215,7 @@ it does not flag the config against its own newer one.
 
 ## License
 
-MIT. `src/engine/random.js` is from [Sphere](https://github.com/fatcerberus/sphere) (BSD-3-Clause) and
-`src/engine/json.js` is Douglas Crockford's `json2.js` (public domain).
+The source code is MIT. The repository also ships components that are *not*: `irrKlang.dll` (Ambiera's license,
+reproduced in `LICENSE`, permits redistribution in **non-commercial products only**), `src/engine/random.js`
+(BSD-3-Clause, notice retained in the file) and `src/engine/json.js` (public domain). Check `LICENSE` and the file
+headers before shipping a project — especially a commercial one, which needs its own irrKlang licence.
