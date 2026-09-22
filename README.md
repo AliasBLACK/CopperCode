@@ -1,3 +1,5 @@
+<img width="1254" height="1254" alt="coppercode" src="https://github.com/user-attachments/assets/53733766-3f73-4ee1-a5c1-e5118ab3ab41" />
+
 # CopperCode
 
 CopperCode is a code-first project template for [CopperCube 6](https://store.steampowered.com/app/857350/). Fork it,
