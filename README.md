@@ -1,4 +1,4 @@
-<img width="400" height="400" alt="coppercode" src="https://github.com/user-attachments/assets/53733766-3f73-4ee1-a5c1-e5118ab3ab41" />
+<img width="100%" alt="coppercode" src="https://github.com/user-attachments/assets/bd5ddfd6-3043-4f68-925c-2e0a31c9e536" />
 
 # CopperCode
 
