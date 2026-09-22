@@ -27,16 +27,14 @@ script is compiled by webpack in VS Code; the executable is published by CopperC
    [CopperCube 6](https://store.steampowered.com/app/857350/).
 2. Install [F5 Anything](https://marketplace.visualstudio.com/items?itemName=discretegames.f5anything) in VS Code.
 3. `cd src && npm install`
-4. Open `coppercode.ccb` in CopperCube and **File → Publish → Publish as Windows Application**. This writes
-   `coppercode.exe` beside it. It does not matter that there is no compiled script yet — publishing bakes in whatever
-   `coppercode.js` is beside the `.ccb`, and the launch below overrides that copy anyway.
-5. Press <kbd>F5</kbd> in VS Code. The launch runs the *Compile game* task first — compiling the script and installing
-   the engine's CopperCube extension — then starts the exe.
+4. In VS Code, **Terminal → Run Task → Compile game**. This writes `coppercode.js` and installs the engine's CopperCube
+   extension.
+5. Open `coppercode.ccb` in CopperCube and **File → Publish → Publish as Windows Application**. This writes
+   `coppercode.exe` beside it.
+6. From now on, press <kbd>F5</kbd> in VS Code.
 
-Step 4 is only needed once. After that <kbd>F5</kbd> does everything you normally need — see below for why.
-
-If CopperCube warns that the `behavior_entity` extension is missing when you open or publish the `.ccb`, run the
-*Copy CopperCube Extensions* task in VS Code first, then republish — an exe published without it has no frame driver.
+Steps 4 and 5 are only needed once each to get going. After that <kbd>F5</kbd> does everything you normally need — see
+below for why.
 
 ## Building
 
