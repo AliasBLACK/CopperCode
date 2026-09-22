@@ -19,3 +19,66 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
+===============================================================================
+THIRD-PARTY COMPONENTS
+===============================================================================
+
+The MIT License above applies to the source code in this repository. The
+components below are distributed alongside it and are NOT covered by it; each
+is governed by its own terms, reproduced or referenced here.
+
+
+-------------------------------------------------------------------------------
+irrKlang -- irrKlang.dll
+-------------------------------------------------------------------------------
+
+The irrKlang License
+
+irrKlang's source codes, documentation and binaries contained within the
+distributed archive are copyright (c) Nikolaus Gebhardt / Ambiera 2001-2009.
+
+The contents of the irrKlang distribution archive may not be redistributed,
+reproduced, modified, transmitted, broadcast, published or adapted in any way,
+shape or form, without the prior written consent of the owner, Nikolaus
+Gebhardt.
+
+The irrKlang.dll, irrKlang.so and libirrklang.dylib files may be redistributed
+without the authors prior permission in non-commercial products, and must
+remain unmodified except for compressing the file.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ''AS IS''
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+-------------------------------------------------------------------------------
+Valve Steamworks SDK -- steam_api64.dll
+-------------------------------------------------------------------------------
+
+This distribution includes 'steam_api64.dll', which is a proprietary component
+of the Valve Steamworks SDK. Copyright (c) Valve Corporation. It is
+redistributed here under the terms of the Valve Steamworks SDK Access Agreement
+solely to enable Steam integration features. It is not covered by the MIT
+License.
+
+
+-------------------------------------------------------------------------------
+Bundled source files
+-------------------------------------------------------------------------------
+
+src/engine/random.js
+    From Sphere, copyright (c) 2015-2022 Fat Cerberus. BSD 3-Clause. The full
+    notice is retained at the top of the file.
+
+src/engine/json.js
+    Douglas Crockford's json2.js. Public domain. The full notice is retained at
+    the top of the file.
