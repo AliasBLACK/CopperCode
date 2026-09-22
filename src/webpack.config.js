@@ -1,8 +1,8 @@
 var path = require('path');
 
 module.exports = {
-    entry: './engine/engine.js',
-    mode: 'production',
+	entry: './index.js',
+	mode: 'production',
 	target: 'es3',
 	optimization: {
 		minimize: true
@@ -13,9 +13,11 @@ module.exports = {
 	resolve: {
 		extensions: ['.tsx', '.ts', '.js']
 	},
-    output: {
-        filename: 'coppercode.js',
-        path: path.resolve(__dirname, '../'),
+	output: {
+		// CopperCube loads the script named after the project, so this has to
+		// match the .ccb and the .exe beside it.
+		filename: 'coppercode.js',
+		path: path.resolve(__dirname, '../'),
 		chunkFormat: 'commonjs'
-    }
+	}
 };

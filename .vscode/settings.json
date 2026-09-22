@@ -1,0 +1,7 @@
+{
+	// CopperCube's interpreter needs target ES3, which TypeScript 5.5 removed —
+	// hence the ~5.4 pin in src/package.json. Point the editor at that same
+	// compiler so it does not report the config as an error against its own
+	// newer bundled one.
+	"typescript.tsdk": "src/node_modules/typescript/lib"
+}

@@ -37,14 +37,13 @@ export class TweenManager extends Entity
 			const t = (tick - tween.startTime) / len;
 			if (t < 1.0) {
 				tweens[ptr++] = tween;
-				let value = []
 				const easerValue = tween.easer(t)
-				for (let i = 0; i < tween.targetValues.length; i++) {
-					const base = tween.initialValues[i]
-					const delta = tween.targetValues[i] - base;
-					value.push( easerValue * delta + base);
+				for (let j = 0; j < tween.targetValues.length; j++) {
+					const base = tween.initialValues[j]
+					const delta = tween.targetValues[j] - base;
+					tween.currentValues[j] = easerValue * delta + base;
 				}
-				tween.assigner(value)
+				tween.assigner(tween.currentValues)
 			}
 			else {
 				tween.assigner(tween.targetValues);
@@ -84,6 +83,7 @@ export class Tween
 				started: false,
 				initialValues,
 				targetValues,
+				currentValues: new Array(initialValues.length),
 				assigner,
 				easer,
 				startTime: pauseableTick,
@@ -94,19 +94,19 @@ export class Tween
 		return promise
 	}
 
-	async easeIn(initialValues, newValues, assigner, durationInSeconds)
+	easeIn(initialValues, newValues, assigner, durationInSeconds)
 	{
-		await this.runTween(initialValues, newValues, this.inEaser, assigner, durationInSeconds);
+		return this.runTween(initialValues, newValues, this.inEaser, assigner, durationInSeconds);
 	}
 
-	async easeInOut(initialValues, newValues, assigner, durationInSeconds)
+	easeInOut(initialValues, newValues, assigner, durationInSeconds)
 	{
-		await this.runTween(initialValues, newValues, this.inOutEaser, assigner, durationInSeconds);
+		return this.runTween(initialValues, newValues, this.inOutEaser, assigner, durationInSeconds);
 	}
 
-	async easeOut(initialValues, newValues, assigner, durationInSeconds)
+	easeOut(initialValues, newValues, assigner, durationInSeconds)
 	{
-		await this.runTween(initialValues, newValues, this.outEaser, assigner, durationInSeconds);
+		return this.runTween(initialValues, newValues, this.outEaser, assigner, durationInSeconds);
 	}
 }
 

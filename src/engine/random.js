@@ -56,9 +56,7 @@ global.Random = class
 
 	static normal(mean, sigma)
 	{
-		// normal deviates are calculated in pairs.  we return the first one
-		// immediately, and save the second to be returned on the next call to
-		// random.normal().
+		// Normal deviates are calculated in pairs: return the first, save the second for next call.
 		let x, u, v, w;
 		if (Number.isNaN(normalVxW)) {
 			do {

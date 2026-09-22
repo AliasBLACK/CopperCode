@@ -1,15 +1,15 @@
-import { Entity } from './engine/entity.js'
+import { Entity } from './engine/index.js'
 
 export class Main extends Entity
 {
-    constructor()
-    {
-        super()
-        // Initialization logic here
-    }
+	constructor()
+	{
+		super()
+		// Initialization logic here.
+	}
 
-    on_update()
-    {
-        // Update logic here
-    }
+	on_update(delta)
+	{
+		// Update logic here.
+	}
 }

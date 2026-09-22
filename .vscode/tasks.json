@@ -4,7 +4,7 @@
 		{
 			"label": "Compile scripts",
 			"type": "shell",
-			"command": "cd src && npm install && npx webpack --config webpack.config.js && cd ..",
+			"command": "cd src && npx webpack --config webpack.config.js && cd ..",
 		},
 		{
 			"label": "Copy CopperCube Extensions",

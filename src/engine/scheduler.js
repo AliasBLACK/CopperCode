@@ -10,6 +10,8 @@ export class Scheduler extends Entity
 
 	on_update(delta)
 	{
+		if (isPaused()) return
+
 		let i = this.tasks.length
 		while (i--)
 		{

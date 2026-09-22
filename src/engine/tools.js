@@ -4,49 +4,67 @@ Vec3.prototype.mult = function(factor) { return new Vec3(this.x * factor, this.y
 Vec3.prototype.reset = function() { this.x = 0; this.y = 0; this.z = 0 }
 Vec3.prototype.clone = function() { return new Vec3(this.x, this.y, this.z) }
 Vec3.prototype.rotate = function(rx, ry, rz) {
-    // Clone the vector
-    let x = this.x;
-    let y = this.y;
-    let z = this.z;
+	// Clone the vector
+	let x = this.x;
+	let y = this.y;
+	let z = this.z;
 
-    // Rotate around X-axis
-    let cosX = Math.cos(rx);
-    let sinX = Math.sin(rx);
-    let y1 = y * cosX - z * sinX;
-    let z1 = y * sinX + z * cosX;
-    y = y1;
-    z = z1;
+	// Rotate around X-axis
+	let cosX = Math.cos(rx);
+	let sinX = Math.sin(rx);
+	let y1 = y * cosX - z * sinX;
+	let z1 = y * sinX + z * cosX;
+	y = y1;
+	z = z1;
 
-    // Rotate around Y-axis
-    let cosY = Math.cos(ry);
-    let sinY = Math.sin(ry);
-    let x1 = x * cosY + z * sinY;
-    let z2 = -x * sinY + z * cosY;
-    x = x1;
-    z = z2;
+	// Rotate around Y-axis
+	let cosY = Math.cos(ry);
+	let sinY = Math.sin(ry);
+	let x1 = x * cosY + z * sinY;
+	let z2 = -x * sinY + z * cosY;
+	x = x1;
+	z = z2;
 
-    // Rotate around Z-axis
-    let cosZ = Math.cos(rz);
-    let sinZ = Math.sin(rz);
-    let x2 = x * cosZ - y * sinZ;
-    let y2 = x * sinZ + y * cosZ;
-    x = x2;
-    y = y2;
+	// Rotate around Z-axis
+	let cosZ = Math.cos(rz);
+	let sinZ = Math.sin(rz);
+	let x2 = x * cosZ - y * sinZ;
+	let y2 = x * sinZ + y * cosZ;
+	x = x2;
+	y = y2;
 
-    return new Vec3(x, y, z);
+	return new Vec3(x, y, z);
 }
 
 // Mouseover detection.
 global.getMouse3DPos = function() { return ccbGet3DPosFrom2DPos(ccbGetMousePosX(), ccbGetMousePosY()) }
 
 // Console and logging.
-var log = ""
+var logBuffer = []
+var logFlushCount = 0
+var logContent = ""
 global.console = {
-    log: function(str) {
-        log += str + "\n"
-        ccbWriteFileContent("console.log", log)
-        print(str)
-    }
+	log: function(str) {
+		logBuffer.push(str)
+		logFlushCount++
+		if (logFlushCount >= 60)
+		{
+			logContent += logBuffer.join("\n") + "\n"
+			logBuffer = []
+			logFlushCount = 0
+			ccbWriteFileContent("console.log", logContent)
+		}
+		print(str)
+	},
+	flush: function() {
+		if (logBuffer.length > 0)
+		{
+			logContent += logBuffer.join("\n") + "\n"
+			logBuffer = []
+			logFlushCount = 0
+			ccbWriteFileContent("console.log", logContent)
+		}
+	}
 }
 
 // Iterator for child nodes.
