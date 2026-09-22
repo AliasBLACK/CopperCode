@@ -61,17 +61,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 -------------------------------------------------------------------------------
-Valve Steamworks SDK -- steam_api64.dll
--------------------------------------------------------------------------------
-
-This distribution includes 'steam_api64.dll', which is a proprietary component
-of the Valve Steamworks SDK. Copyright (c) Valve Corporation. It is
-redistributed here under the terms of the Valve Steamworks SDK Access Agreement
-solely to enable Steam integration features. It is not covered by the MIT
-License.
-
-
--------------------------------------------------------------------------------
 Bundled source files
 -------------------------------------------------------------------------------
 
