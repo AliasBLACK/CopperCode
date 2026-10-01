@@ -2,11 +2,11 @@
   "name": "coppercode",
   "private": true,
   "devDependencies": {
-    "crash-colliders": "^2.0.2",
     "es5-shim": "^4.6.7",
     "es6-shim": "^0.35.8",
     "object.entries": "^1.1.8",
     "object.values": "^1.2.0",
+    "oimo": "^1.0.9",
     "promise-for-es": "^1.0.0",
     "ts-loader": "^9.5.1",
     "typeflex": "^0.1.0",

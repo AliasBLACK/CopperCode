@@ -18,7 +18,6 @@
 // between neighbouring cells stays under maxStep. Only near-horizontal faces
 // are walkable; a wall across the mesh is scenery, not floor.
 
-const DEG = Math.PI / 180
 const IDENTITY = function(v) { return v }
 
 // Node types carrying no spatial transform: folders report "unknown", and
@@ -98,6 +97,56 @@ function worldTransform(node)
 // Every triangle under node, in world space. xf already maps node's local
 // space to world, so it applies to the node's own vertices as-is; each child
 // composes its own local transform on top.
+// World-space axis-aligned bounds of everything under node. Vertices are
+// streamed one at a time and nothing is retained, so a large mesh cannot
+// exhaust the heap the way a triangle list would. A node carrying no mesh —
+// a marker — answers as a unit cube through its transform.
+export function nodeBounds(node)
+{
+	const xf = worldTransform(node)
+
+	let minX = Infinity, minY = Infinity, minZ = Infinity
+	let maxX = -Infinity, maxY = -Infinity, maxZ = -Infinity
+	let count = 0
+
+	const grow = function(v)
+	{
+		if (v.x < minX) minX = v.x
+		if (v.x > maxX) maxX = v.x
+		if (v.y < minY) minY = v.y
+		if (v.y > maxY) maxY = v.y
+		if (v.z < minZ) minZ = v.z
+		if (v.z > maxZ) maxZ = v.z
+	}
+
+	const visit = function(n, f)
+	{
+		const buffers = ccbGetSceneNodeMeshBufferCount(n) || 0
+
+		for (let b = 0; b < buffers; ++b)
+		{
+			const vc = ccbGetMeshBufferVertexCount(n, b)
+			for (let v = 0; v < vc; ++v)
+			{
+				grow(f(ccbGetMeshBufferVertexPosition(n, b, v)))
+				++count
+			}
+		}
+
+		forEachNode(n, function(child) { visit(child, compose(f, localTransform(child))) })
+	}
+	visit(node, xf)
+
+	if (!count)
+		for (let i = 0; i < 8; ++i)
+			grow(xf(new Vec3((i & 1) - 0.5, ((i >> 1) & 1) - 0.5, ((i >> 2) & 1) - 0.5)))
+
+	return {
+		x: (minX + maxX) / 2, y: (minY + maxY) / 2, z: (minZ + maxZ) / 2,
+		sx: maxX - minX, sy: maxY - minY, sz: maxZ - minZ
+	}
+}
+
 function extractTriangles(node, xf, out)
 {
 	const buffers = ccbGetSceneNodeMeshBufferCount(node) || 0
@@ -140,40 +189,45 @@ function pointInTri(x, z, a, b, c)
 	return !(neg && pos)
 }
 
-// Separating-axis test between a triangle and an axis-aligned cell square on
-// the XZ plane: the two box axes plus the three triangle edge normals.
-function triHitsCell(tri, x0, z0, x1, z1)
+// The fixed half of a triangle-vs-cell SAT test: each edge's normal on the XZ
+// plane and the triangle's projection range on it, packed [nx,nz,min,max].
+// Computed once per triangle — the per-cell test allocates nothing.
+function triEdges(t)
 {
-	if (Math.max(tri.a.x, tri.b.x, tri.c.x) < x0 || Math.min(tri.a.x, tri.b.x, tri.c.x) > x1) return false
-	if (Math.max(tri.a.z, tri.b.z, tri.c.z) < z0 || Math.min(tri.a.z, tri.b.z, tri.c.z) > z1) return false
-
-	const px = [tri.a.x, tri.b.x, tri.c.x]
-	const pz = [tri.a.z, tri.b.z, tri.c.z]
-	const bx = [x0, x1, x0, x1]
-	const bz = [z0, z0, z1, z1]
+	const px = [t.a.x, t.b.x, t.c.x]
+	const pz = [t.a.z, t.b.z, t.c.z]
+	const out = []
 
 	for (let e = 0; e < 3; ++e)
 	{
-		const a = e, b = (e + 1) % 3
-		const nx = -(pz[b] - pz[a]), nz = px[b] - px[a]
+		const b = (e + 1) % 3
+		const nx = -(pz[b] - pz[e]), nz = px[b] - px[e]
 
-		let tmin = Infinity, tmax = -Infinity
+		let mn = Infinity, mx = -Infinity
 		for (let i = 0; i < 3; ++i)
 		{
 			const d = px[i] * nx + pz[i] * nz
-			if (d < tmin) tmin = d
-			if (d > tmax) tmax = d
+			if (d < mn) mn = d
+			if (d > mx) mx = d
 		}
 
-		let bmin = Infinity, bmax = -Infinity
-		for (let i = 0; i < 4; ++i)
-		{
-			const d = bx[i] * nx + bz[i] * nz
-			if (d < bmin) bmin = d
-			if (d > bmax) bmax = d
-		}
+		out.push(nx, nz, mn, mx)
+	}
 
-		if (tmax < bmin || bmax < tmin) return false
+	return out
+}
+
+// Whether the triangle (through its edges record) overlaps the cell square.
+// The cell's own axis tests are implied by the caller's loop bounds.
+function triHitsCell(edges, cx, cz, half)
+{
+	for (let e = 0; e < 12; e += 4)
+	{
+		const nx = edges[e], nz = edges[e + 1]
+		const c = cx * nx + cz * nz
+		const r = (Math.abs(nx) + Math.abs(nz)) * half
+
+		if (edges[e + 3] < c - r || c + r < edges[e + 2]) return false
 	}
 
 	return true
@@ -262,7 +316,7 @@ export class NavMesh
 		}
 
 		this.rasterize()
-		console.log("navmesh: " + this.tris.length + " faces, " + this.cellCount() + " cells")
+		console.log("navmesh: " + this.cellCount() + " cells")
 	}
 
 	cellCount()
@@ -277,10 +331,12 @@ export class NavMesh
 	rasterize()
 	{
 		const cs = this.cellSize
+		const half = cs * 0.5
 
 		for (let i = 0; i < this.tris.length; ++i)
 		{
 			const t = this.tris[i]
+			const edges = triEdges(t)
 			const x0 = Math.floor(Math.min(t.a.x, t.b.x, t.c.x) / cs)
 			const x1 = Math.floor(Math.max(t.a.x, t.b.x, t.c.x) / cs)
 			const z0 = Math.floor(Math.min(t.a.z, t.b.z, t.c.z) / cs)
@@ -290,7 +346,7 @@ export class NavMesh
 			{
 				for (let cz = z0; cz <= z1; ++cz)
 				{
-					if (!triHitsCell(t, cx * cs, cz * cs, (cx + 1) * cs, (cz + 1) * cs)) continue
+					if (!triHitsCell(edges, (cx + 0.5) * cs, (cz + 0.5) * cs, half)) continue
 
 					const key = cx + "," + cz
 					const y = planeY(t, (cx + 0.5) * cs, (cz + 0.5) * cs)
@@ -329,11 +385,13 @@ export class NavMesh
 		extractTriangles(node, worldTransform(node), tris)
 
 		const cs = this.cellSize
+		const half = cs * 0.5
 		let marked = 0
 
 		for (let i = 0; i < tris.length; ++i)
 		{
 			const t = { a: tris[i][0], b: tris[i][1], c: tris[i][2] }
+			const edges = triEdges(t)
 			const x0 = Math.floor(Math.min(t.a.x, t.b.x, t.c.x) / cs)
 			const x1 = Math.floor(Math.max(t.a.x, t.b.x, t.c.x) / cs)
 			const z0 = Math.floor(Math.min(t.a.z, t.b.z, t.c.z) / cs)
@@ -343,7 +401,7 @@ export class NavMesh
 			{
 				for (let cz = z0; cz <= z1; ++cz)
 				{
-					if (!triHitsCell(t, cx * cs, cz * cs, (cx + 1) * cs, (cz + 1) * cs)) continue
+					if (!triHitsCell(edges, (cx + 0.5) * cs, (cz + 0.5) * cs, half)) continue
 					if (!this.blocked[cx + "," + cz]) { this.blocked[cx + "," + cz] = true; ++marked }
 				}
 			}

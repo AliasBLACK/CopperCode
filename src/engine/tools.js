@@ -1,70 +1,71 @@
-// Add additional functions to vector3d.
-global.Vec3 = vector3d
-Vec3.prototype.mult = function(factor) { return new Vec3(this.x * factor, this.y * factor, this.z * factor) }
-Vec3.prototype.reset = function() { this.x = 0; this.y = 0; this.z = 0 }
-Vec3.prototype.clone = function() { return new Vec3(this.x, this.y, this.z) }
+// Oimo's Vec3 is structurally identical to CopperCube's vector3d ({x,y,z});
+// no scene API takes a vector object, so it can serve as Vec3 everywhere.
+import { Vec3 } from 'oimo'
+global.Vec3 = Vec3
+
+// Euler rotation in place — CopperCube's X→Y→Z order. Returns this.
 Vec3.prototype.rotate = function(rx, ry, rz) {
-	// Clone the vector
-	let x = this.x;
-	let y = this.y;
-	let z = this.z;
+	const cx = Math.cos(rx), sx = Math.sin(rx)
+	const cy = Math.cos(ry), sy = Math.sin(ry)
+	const cz = Math.cos(rz), sz = Math.sin(rz)
+	let y = this.y * cx - this.z * sx
+	let z = this.y * sx + this.z * cx
+	let x = this.x * cy + z * sy
+	z = -this.x * sy + z * cy
+	this.x = x * cz - y * sz
+	this.y = x * sz + y * cz
+	this.z = z
+	return this
+}
 
-	// Rotate around X-axis
-	let cosX = Math.cos(rx);
-	let sinX = Math.sin(rx);
-	let y1 = y * cosX - z * sinX;
-	let z1 = y * sinX + z * cosX;
-	y = y1;
-	z = z1;
+// Degrees to radians.
+global.DEG = Math.PI / 180
 
-	// Rotate around Y-axis
-	let cosY = Math.cos(ry);
-	let sinY = Math.sin(ry);
-	let x1 = x * cosY + z * sinY;
-	let z2 = -x * sinY + z * cosY;
-	x = x1;
-	z = z2;
+global.clamp = function(v, low, high) { return v < low ? low : v > high ? high : v }
 
-	// Rotate around Z-axis
-	let cosZ = Math.cos(rz);
-	let sinZ = Math.sin(rz);
-	let x2 = x * cosZ - y * sinZ;
-	let y2 = x * sinZ + y * cosZ;
-	x = x2;
-	y = y2;
+// Shallow copy: base with over's keys.
+global.merge = function(base, over)
+{
+	const out = {}
+	for (const key in base) out[key] = base[key]
+	for (const key in over) out[key] = over[key]
+	return out
+}
 
-	return new Vec3(x, y, z);
+// Angle to minus from, wrapped to +-180.
+global.angleTo = function(from, to)
+{
+	let d = (to - from) % 360
+	if (d > 180) d -= 360
+	if (d < -180) d += 360
+	return d
+}
+
+// Frame-rate independent lerp: same fraction per second, not per frame.
+global.smooth = function(current, target, rate, delta)
+{
+	return current + (target - current) * (1 - Math.exp(-rate * delta))
+}
+
+// The same, around the circle, so 350 degrees lerps to 10 the short way.
+global.smoothAngle = function(current, target, rate, delta)
+{
+	return current + angleTo(current, target) * (1 - Math.exp(-rate * delta))
 }
 
 // Mouseover detection.
 global.getMouse3DPos = function() { return ccbGet3DPosFrom2DPos(ccbGetMousePosX(), ccbGetMousePosY()) }
 
-// Console and logging.
-var logBuffer = []
-var logFlushCount = 0
+// Console and logging. Write-through: no exit hook exists to flush a buffer
+// on, so every line lands in the file immediately, even on a crash.
 var logContent = ""
 global.console = {
 	log: function(str) {
-		logBuffer.push(str)
-		logFlushCount++
-		if (logFlushCount >= 60)
-		{
-			logContent += logBuffer.join("\n") + "\n"
-			logBuffer = []
-			logFlushCount = 0
-			ccbWriteFileContent("console.log", logContent)
-		}
+		logContent += str + "\n"
+		ccbWriteFileContent("console.log", logContent)
 		print(str)
 	},
-	flush: function() {
-		if (logBuffer.length > 0)
-		{
-			logContent += logBuffer.join("\n") + "\n"
-			logBuffer = []
-			logFlushCount = 0
-			ccbWriteFileContent("console.log", logContent)
-		}
-	}
+	flush: function() {}
 }
 
 // Iterator for child nodes.
@@ -85,4 +86,21 @@ global.findNode = function(node, func)
 		result = func(r) ? r : null
 	}
 	return result
+}
+
+// First child named so, or null.
+global.childNamed = function(node, name)
+{
+	return findNode(node, function(child) { return ccbGetSceneNodeProperty(child, "Name") === name })
+}
+
+// Every material slot across a node and its children, as [node, index, authoredType] triples.
+global.collectSlots = function(node, into)
+{
+	const count = ccbGetSceneNodeMaterialCount(node)
+
+	for (let i = 0; i < count; i++)
+		into.push(node, i, ccbGetSceneNodeMaterialProperty(node, i, "Type"))
+
+	forEachNode(node, function(child) { collectSlots(child, into) })
 }

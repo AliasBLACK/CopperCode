@@ -1,9 +1,9 @@
 // CopperCode: the engine behind a CopperCube project.
 //
 // Importing this module is what installs the runtime — the shims, the vector
-// types, the collision engine, and the globals the rest of it is reached
-// through. Import it before anything else in your entry module, then call
-// boot() with your root Entity once your own modules have loaded.
+// type, the physics world, and the globals the rest of it is reached through.
+// Import it before anything else in your entry module, then call boot() with
+// your root Entity once your own modules have loaded.
 //
 //     import { boot, Entity } from './engine/index.js'
 //     import { Main } from './main.js'
@@ -19,9 +19,10 @@
 //
 //   sceneRoot, stash            the authored nodes everything is parented to
 //   spawnEntity, runningEntities  the entity pool and the frame it runs in
-//   Vec2, Vec3, crash           vectors and 2D collision
+//   Vec3, Physics               vectors and 3D physics
 //   Random, localize            dice and strings
-//   console, forEachNode, findNode, getMouse3DPos
+//   console, forEachNode, findNode, childNamed, getMouse3DPos
+//   DEG, clamp, merge, angleTo, smooth, smoothAngle, collectSlots
 //   readMouseRay, hitsNode, rayPlaneHit
 //
 // and by boot:
@@ -38,4 +39,4 @@ export { Interface, Frame, Panel, Text, Button, fontMultiplier } from './interfa
 export { Tween, TweenManager, Easing } from './tween.js'
 export { Picker, readMouseRay, hitsNode, rayPlaneHit, setRayLength } from './picking.js'
 export { pickPrefab, turnPrefab } from './prefabs.js'
-export { NavMesh } from './navmesh.js'
+export { NavMesh, nodeBounds } from './navmesh.js'

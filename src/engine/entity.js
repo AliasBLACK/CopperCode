@@ -36,6 +36,7 @@ global.mouseMove = function() { let i = mouseListeners.length; while (i--) mouse
 global.update = function(delta)
 {
 	delta /= 1000
+	if (global.Physics) Physics.update(delta)
 	let i = runningEntities.length
 	while(i--)
 	{
@@ -49,7 +50,11 @@ global.update = function(delta)
 			continue
 		}
 		if (entity.on_update !== Entity.prototype.on_update)
-			entity.on_update(delta)
+		{
+			// A throwing entity would otherwise starve everything after it.
+			try { entity.on_update(delta) }
+			catch (e) { if (!entity.threw) { entity.threw = true; console.log("entity update failed: " + (e && e.stack || e)) } }
+		}
 	}
 }
 

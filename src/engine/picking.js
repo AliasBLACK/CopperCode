@@ -58,11 +58,7 @@ export function hitsNode(node)
 	if (ccbDoesLineCollideWithBoundingBoxOfSceneNode(node,
 		from.x, from.y, from.z, along.x, along.y, along.z)) return true
 
-	let i = ccbGetSceneNodeChildCount(node)
-
-	while (i--) if (hitsNode(ccbGetChildSceneNode(node, i))) return true
-
-	return false
+	return findNode(node, hitsNode) != null
 }
 
 // Handed back by reference: ground queries happen several times a frame.
